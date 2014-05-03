@@ -4,6 +4,7 @@ import (
   "io"
   "encoding/csv"
   "errors"
+  "fmt"
 )
 
 var HEADER = []string {
@@ -13,10 +14,16 @@ var HEADER = []string {
   "registered_country_geoname_id",
   "represented_country_geoname_id",
   "postal_code",
-  "latitude","longitude",
+  "latitude",
+  "longitude",
   "is_anonymous_proxy",
   "is_satellite_provider",
 }
+
+const (
+  IS_ANONYMOUS_PROXY_INDEX = 8
+  IS_SATELLITE_PROVIDER_INDEX = 9
+)
 
 type Database []*Record
 
@@ -46,6 +53,8 @@ func LoadDatabase(reader *io.Reader) (*Database, *error) {
     return nil, &headerError
   }
 
+  var rowCount uint
+
   for {
     rowItems, rowError := csvReader.Read()
     if io.EOF == rowError {
@@ -54,9 +63,16 @@ func LoadDatabase(reader *io.Reader) (*Database, *error) {
     if nil != rowError {
       return nil, &rowError
     }
-    record, recordError := ParseRecord(rowItems)
-    if nil != recordError {
-      return nil, recordError
+    if "1" == rowItems[IS_ANONYMOUS_PROXY_INDEX] ||
+        "1" == rowItems[IS_SATELLITE_PROVIDER_INDEX] {
+      continue
+    }
+    rowCount++
+    record, recordParseError := ParseRecord(rowItems)
+    if nil != recordParseError {
+      recordError := fmt.Errorf("Row #%d %#v parsed with error %v",
+        rowCount, rowItems, *recordParseError)
+      return nil, &recordError
     }
     database = append(database, record)
   }

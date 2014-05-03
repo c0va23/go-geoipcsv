@@ -18,19 +18,21 @@ func ParseRecord(rowItems []string) (*Record, *error) {
   if ipError != nil {
     return nil, ipError
   }
-  mask, maskError := strconv.ParseUint(rowItems[1], 10, 8)
-  if nil != maskError {
+  mask, maskParseError := strconv.ParseUint(rowItems[1], 10, 8)
+  if nil != maskParseError {
+    maskError := fmt.Errorf("Error parsing mask \"%s\"", maskParseError)
     return nil, &maskError
   }
 
   if mask > MAX_MASK_VALUE {
-    error := fmt.Errorf("Mask should have value be between 1 and %d", MAX_MASK_VALUE)
-    return nil, &error
+    maskError := fmt.Errorf("Mask should have value be between 1 and %d", MAX_MASK_VALUE)
+    return nil, &maskError
   }
 
-  geonameId, geonameidError := strconv.ParseUint(rowItems[2], 10, 64)
-  if nil != geonameidError {
-    return nil, &geonameidError
+  geonameId, geonameIdParseError := strconv.ParseUint(rowItems[2], 10, 64)
+  if nil != geonameIdParseError {
+    geonameIdError := fmt.Errorf("Error parsing geoname_id \"%s\"", geonameIdParseError)
+    return nil, &geonameIdError
   }
 
   record := &Record {

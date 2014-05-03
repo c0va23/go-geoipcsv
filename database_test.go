@@ -5,7 +5,6 @@ import (
   "strings"
   "io"
 )
-// const VALID_HEADER = ''
 const VALID_DATA = `
 network_start_ip,network_mask_length,geoname_id,registered_country_geoname_id,represented_country_geoname_id,postal_code,latitude,longitude,is_anonymous_proxy,is_satellite_provider
 ::ffff:1.0.64.0,114,1861060,1861060,,,35.6900,139.6900,0,0

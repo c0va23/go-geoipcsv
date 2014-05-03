@@ -52,6 +52,11 @@ func TestLoadDatabase(t *testing.T) {
     if recordsCount != 3 {
       t.Errorf("Return not valid database for valid data (%d/3)", recordsCount)
     }
+    for recordIndex, record := range *validDatabase {
+      if nil == record {
+        t.Errorf("Database have nil on row #%d", recordIndex)
+      }
+    }
   }
 
   for _, invalidData := range INVALID_DATA {

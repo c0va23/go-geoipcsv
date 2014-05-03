@@ -87,7 +87,7 @@ func LoadDatabase(reader *io.Reader) (*Database, *error) {
 
   var database Database = make([]*Record, rowCount)
 
-  for index := rowCount - 1; index > 0; index-- {
+  for index := rowCount - 1; index >= 0; index-- {
     database[index] = item.record
     item = item.prev
   }

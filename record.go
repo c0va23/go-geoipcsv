@@ -55,6 +55,5 @@ func (record *Record) MatchIpAddress(ipAddress *Ipv6Address) bool {
     return true
   }
   var bitMask byte = 0xFF << (BYTE_SIZE - bitOffset)
-  fmt.Printf("%d %d %b\n", record.mask, equalByteCount, bitMask)
   return (record.ipAddress[equalByteCount] & bitMask) == (ipAddress[equalByteCount] & bitMask)
 }

@@ -27,6 +27,11 @@ const (
 
 type Database []*Record
 
+type recordItem struct {
+  record *Record
+  prev *recordItem
+}
+
 func validHeader(header []string) bool {
   if len(header) != len(HEADER) {
     return false
@@ -41,7 +46,6 @@ func validHeader(header []string) bool {
 
 func LoadDatabase(reader *io.Reader) (*Database, *error) {
   csvReader := csv.NewReader(*reader)
-  var database Database = make([]*Record, 0)
 
   header, headerError := csvReader.Read()
   if headerError != nil {
@@ -53,7 +57,8 @@ func LoadDatabase(reader *io.Reader) (*Database, *error) {
     return nil, &headerError
   }
 
-  var rowCount uint
+  var rowCount int
+  var item *recordItem
 
   for {
     rowItems, rowError := csvReader.Read()
@@ -74,7 +79,17 @@ func LoadDatabase(reader *io.Reader) (*Database, *error) {
         rowCount, rowItems, *recordParseError)
       return nil, &recordError
     }
-    database = append(database, record)
+    item = &recordItem {
+      record: record,
+      prev: item,
+    }
+  }
+
+  var database Database = make([]*Record, rowCount)
+
+  for index := rowCount - 1; index > 0; index-- {
+    database[index] = item.record
+    item = item.prev
   }
 
   return &database, nil

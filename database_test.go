@@ -26,6 +26,12 @@ network_start_ip,network_mask_length,geoname_id,registered_country_geoname_id,re
 const INVALID_HEADER = `
 column1,column2,column3
 `
+const EMTPY_DATA = `
+network_start_ip,network_mask_length,geoname_id,registered_country_geoname_id,represented_country_geoname_id,postal_code,latitude,longitude,is_anonymous_proxy,is_satellite_provider
+::ffff:1.2.3.4,0,0,0,,,0.0,0.0,1,0
+::ffff:1.2.3.4,0,0,0,,,0.0,0.0,0,1
+`
+
 var INVALID_DATA = []string {
   INVALID_IP_DATA,
   INVALID_MASK_DATA,
@@ -57,5 +63,18 @@ func TestLoadDatabase(t *testing.T) {
     if nil != invalidDatabase {
       t.Error("Return data for invalid data")
     }
+  }
+
+  var emptyDatabaseReader io.Reader = strings.NewReader(EMTPY_DATA)
+  emptyDatabase, emptyError := LoadDatabase(&emptyDatabaseReader)
+  if nil != emptyError {
+    t.Error("Return error for empty data")
+  }
+  if nil == emptyDatabase {
+    t.Error("Not return database for empty database")
+  }
+  emptyRecordCount := len(*emptyDatabase)
+  if emptyRecordCount > 0 {
+    t.Errorf("Return %d records for empty database", emptyRecordCount)
   }
 }

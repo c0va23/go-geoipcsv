@@ -41,3 +41,52 @@ func TestParseRecord(t *testing.T) {
   }
 
 }
+
+func testMatchIpAddresses(t *testing.T, ipAddress string, maskLength byte, validIpAddresses []string, invalidIpAddresses []string) {
+  parsedIpAddress, parsingError := ParseIpv6Address(ipAddress)
+  if parsingError != nil {
+    t.Errorf("Error parsing ip %s", *parsingError)
+    return
+  }
+
+  record := Record {
+    ipAddress: *parsedIpAddress,
+    mask: maskLength,
+  }
+
+  if !record.MatchIpAddress(parsedIpAddress) {
+    t.Error("Record not match own address")
+  }
+
+  for _, validIpAddress := range validIpAddresses {
+    parsedIpAddress, parsingError := ParseIpv6Address(validIpAddress)
+    if parsingError != nil {
+      t.Errorf("Address %s parsed with error %s", validIpAddress, *parsingError)
+      return
+    }
+    if !record.MatchIpAddress(parsedIpAddress) {
+      t.Errorf("Record %s/%d not match valid address %s", ipAddress, maskLength, validIpAddress)
+    }
+  }
+
+  for _, invalidIpAddress := range invalidIpAddresses {
+    parsedIpAddress, parsingError := ParseIpv6Address(invalidIpAddress)
+    if parsingError != nil {
+      t.Errorf("Address %s parsed with error %s", invalidIpAddress, *parsingError)
+      return
+    }
+    if record.MatchIpAddress(parsedIpAddress) {
+      t.Errorf("Record %s/%d match not valid address %v", ipAddress, maskLength, invalidIpAddress)
+    }
+  }
+
+}
+
+func TestMatchIpAddress(t *testing.T) {
+
+  testMatchIpAddresses(t, "::8888", 128, []string { }, []string { "::8887", "::8889" })
+  testMatchIpAddresses(t, "::8888", 124, []string { "::8880", "::888F" },
+    []string { "::887F", "::8890", "::87FF", "::8900" })
+  testMatchIpAddresses(t, "::8888", 120, []string { "::8800", "::88FF" },
+    []string { "::87FF", "::8900", "::7FFF", "::9000" })
+}

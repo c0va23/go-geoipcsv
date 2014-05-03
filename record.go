@@ -3,9 +3,11 @@ package geoip
 import (
   "strconv"
   "fmt"
+  "bytes"
 )
 
-const MAX_MASK_VALUE = 128
+const BYTE_SIZE = 8
+const MAX_MASK_VALUE = IPV6_BYTES * BYTE_SIZE
 
 type Record struct {
   ipAddress Ipv6Address
@@ -41,4 +43,18 @@ func ParseRecord(rowItems []string) (*Record, *error) {
     geonameId: geonameId,
   }
   return record, nil
+}
+
+func (record *Record) MatchIpAddress(ipAddress *Ipv6Address) bool {
+  equalByteCount := record.mask / BYTE_SIZE
+  if !bytes.Equal(record.ipAddress[:equalByteCount], ipAddress[:equalByteCount]) {
+    return false
+  }
+  var bitOffset byte = record.mask % BYTE_SIZE
+  if bitOffset == 0 {
+    return true
+  }
+  var bitMask byte = 0xFF << (BYTE_SIZE - bitOffset)
+  fmt.Printf("%d %d %b\n", record.mask, equalByteCount, bitMask)
+  return (record.ipAddress[equalByteCount] & bitMask) == (ipAddress[equalByteCount] & bitMask)
 }

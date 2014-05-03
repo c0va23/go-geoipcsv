@@ -94,4 +94,3 @@ func LoadDatabase(reader *io.Reader) (*Database, *error) {
 
   return &database, nil
 }
-

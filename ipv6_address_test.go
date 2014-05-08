@@ -64,6 +64,20 @@ func TestParseIpv6Address(t *testing.T) {
   }
 }
 
+func BenchmarkParseIpv6Address4(b *testing.B) {
+  ipv4 := "::ffff:1.2.3.4"
+  for i := 0; i < b.N; i++ {
+    ParseIpv6Address(ipv4)
+  }
+}
+
+func BenchmarkParseIpv6Address6(b *testing.B) {
+  ipv6 := "1234:5678:90AB:CDEF:1234:5678:90AB:CDEF"
+  for i := 0; i < b.N; i++ {
+    ParseIpv6Address(ipv6)
+  }
+}
+
 func TestEqual(t *testing.T) {
   var firstAddress = Ipv6Address { 0x12, 0x34, 0x56, 0x78, 0x90, 0xAB, 0xCD, 0xEF, 0x12, 0x34, 0x56, 0x78, 0x90, 0xAB, 0xCD, 0xEF }
   var secondAddress = Ipv6Address { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }

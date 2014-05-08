@@ -4,10 +4,20 @@ import (
   "strconv"
   "fmt"
   "bytes"
+  "errors"
 )
 
-const BYTE_SIZE = 8
-const MAX_MASK_VALUE = IPV6_BYTES * BYTE_SIZE
+const (
+  BYTE_SIZE = 8
+  MAX_MASK_VALUE = IPV6_BYTES * BYTE_SIZE
+  IS_ANONYMOUS_PROXY_INDEX = 8
+  IS_SATELLITE_PROVIDER_INDEX = 9
+)
+
+var (
+  COLUMN_COUNT = len(HEADER)
+  USELESS_RECORS_ERROR = errors.New("Anonymous proxy or satellite provider")
+)
 
 type Record struct {
   ipAddress Ipv6Address
@@ -16,6 +26,16 @@ type Record struct {
 }
 
 func ParseRecord(rowItems []string) (*Record, *error) {
+  if COLUMN_COUNT != len(rowItems) {
+    lenErr := fmt.Errorf("len(%#v) != %s", rowItems, COLUMN_COUNT)
+    return nil, &lenErr
+  }
+
+  if "1" == rowItems[IS_ANONYMOUS_PROXY_INDEX] ||
+      "1" == rowItems[IS_SATELLITE_PROVIDER_INDEX] {
+    return nil, &USELESS_RECORS_ERROR
+  }
+
   ipAddress, ipError := ParseIpv6Address(rowItems[0])
   if ipError != nil {
     return nil, ipError

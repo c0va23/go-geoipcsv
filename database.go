@@ -20,11 +20,6 @@ var HEADER = []string {
   "is_satellite_provider",
 }
 
-const (
-  IS_ANONYMOUS_PROXY_INDEX = 8
-  IS_SATELLITE_PROVIDER_INDEX = 9
-)
-
 type Database []*Record
 
 type recordItem struct {
@@ -68,15 +63,15 @@ func LoadDatabase(reader *io.Reader) (*Database, *error) {
     if nil != rowError {
       return nil, &rowError
     }
-    if "1" == rowItems[IS_ANONYMOUS_PROXY_INDEX] ||
-        "1" == rowItems[IS_SATELLITE_PROVIDER_INDEX] {
-      continue
-    }
-    rowCount++
     record, recordParseError := ParseRecord(rowItems)
-    if nil != recordParseError {
+    switch recordParseError {
+    case nil:
+      rowCount++
+    case &USELESS_RECORS_ERROR:
+      continue
+    default:
       recordError := fmt.Errorf("Row #%d %#v parsed with error %v",
-        rowCount, rowItems, *recordParseError)
+        rowCount + 1, rowItems, *recordParseError)
       return nil, &recordError
     }
     item = &recordItem {

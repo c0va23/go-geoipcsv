@@ -95,10 +95,27 @@ func LoadDatabase(reader *io.Reader) (*Database, *error) {
   return &database, nil
 }
 
+func (database *Database) get(index uint) (*Record) {
+  return (*database)[index]
+}
+
 func (database *Database) FindRecord(ipAddress *Ipv6Address) (*Record) {
-  for _, record := range *database {
-    if record.MatchIpAddress(ipAddress) {
+  startIndex := uint(0)
+  endIndex := uint(len(*database) - 1)
+  for {
+    centerIndex := startIndex + (endIndex - startIndex) / 2
+    record := database.get(centerIndex)
+    switch {
+    case record.MatchIpAddress(ipAddress):
       return record
+    case startIndex == endIndex:
+      return nil
+    case startIndex == centerIndex:
+      startIndex = endIndex
+    case record.ipAddress.Compare(ipAddress) < 0:
+      startIndex = centerIndex
+    default:
+      endIndex = centerIndex
     }
   }
   return nil

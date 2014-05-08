@@ -94,3 +94,12 @@ func LoadDatabase(reader *io.Reader) (*Database, *error) {
 
   return &database, nil
 }
+
+func (database *Database) FindRecord(ipAddress *Ipv6Address) (*Record) {
+  for _, record := range *database {
+    if record.MatchIpAddress(ipAddress) {
+      return record
+    }
+  }
+  return nil
+}

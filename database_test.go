@@ -83,3 +83,62 @@ func TestLoadDatabase(t *testing.T) {
     t.Errorf("Return %d records for empty database", emptyRecordCount)
   }
 }
+
+func TestFindRecord(t *testing.T) {
+
+  var ipAddresses = []string {
+    "::ffff:1.1.1.1",
+    "::ffff:2.2.2.2",
+    "::ffff:3.3.3.3",
+  }
+  var validIpAddresses = []string {
+    "::ffff:1.1.1.1",
+    "::ffff:1.1.1.0",
+    "::ffff:1.1.1.255",
+    "::ffff:2.2.2.2",
+    "::ffff:2.2.2.0",
+    "::ffff:2.2.2.255",
+    "::ffff:3.3.3.3",
+    "::ffff:3.3.3.0",
+    "::ffff:3.3.3.255",
+  }
+  var invalidIpAddresses = []string {
+    "::ffff:4.4.4.4",
+    "::ffff:5.5.5.5",
+    "::ffff:3.3.4.0",
+  }
+
+  database := make(Database, len(ipAddresses))
+  for index, ipAddress := range ipAddresses {
+    parsedIpAddress, parsingError := ParseIpv6Address(ipAddress)
+    if nil != parsingError {
+      t.Error("Error parsing ip %s", parsingError)
+      return
+    }
+    database[index] = &Record { ipAddress: *parsedIpAddress, mask: 120 }
+  }
+
+  for _, ipAddress := range validIpAddresses {
+    parsedIpAddress, parsingError := ParseIpv6Address(ipAddress)
+    if nil != parsingError {
+      t.Errorf("Error parsing ip %s", parsingError)
+      return
+    }
+    record := database.FindRecord(parsedIpAddress)
+    if nil == record {
+      t.Errorf("Not found record for ip %s", ipAddress)
+    }
+  }
+
+  for _, ipAddress := range invalidIpAddresses {
+    parsedIpAddress, parsingError := ParseIpv6Address(ipAddress)
+    if nil != parsingError {
+      t.Errorf("Error parsing ip %s", parsingError)
+      return
+    }
+    record := database.FindRecord(parsedIpAddress)
+    if nil != record {
+      t.Errorf("Found record %#v for invalid ip %s", record, ipAddress)
+    }
+  }
+}

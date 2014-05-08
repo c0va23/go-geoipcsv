@@ -5,6 +5,7 @@ import (
   "strconv"
   "errors"
   "regexp"
+  "bytes"
 )
 
 const (
@@ -118,4 +119,8 @@ func (address *Ipv6Address) Equal(otherAddress *Ipv6Address) bool {
     }
   }
   return true
+}
+
+func (address *Ipv6Address) Compare(otherAddress *Ipv6Address) int {
+  return bytes.Compare(address[:], otherAddress[:])
 }

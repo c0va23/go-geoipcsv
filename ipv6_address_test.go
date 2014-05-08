@@ -76,3 +76,22 @@ func TestEqual(t *testing.T) {
     t.Error("Two diffirent address equal")
   }
 }
+
+func TestCompare(t *testing.T) {
+  big := "::FFFF"
+  bigAddress, _ := ParseIpv6Address(big)
+  small := "::0000"
+  smallAddress, _ := ParseIpv6Address(small)
+
+  if bigAddress.Compare(smallAddress) != 1 {
+    t.Errorf("%s.Compare(%s) != 1", big, small)
+  }
+
+  if smallAddress.Compare(bigAddress) != -1 {
+    t.Errorf("%s.Compare(%s) != -1", small, big)
+  }
+
+  if bigAddress.Compare(bigAddress) != 0 {
+    t.Errorf("%s.Compare(%s) != 0", big, big)
+  }
+}

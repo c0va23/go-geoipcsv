@@ -5,10 +5,10 @@ import (
 )
 
 func TestParseRecord(t *testing.T) {
-  var validRowItems = []string { "ffff::ffff:1.2.3.4", "123", "456", "0", "", "", "0.0", "0.0", "0", "0" }
+  var validRowItems = []string { "::ffff:1.2.3.4", "123", "456", "0", "", "", "0.0", "0.0", "0", "0" }
   validRecord := &Record {
     ipAddress: Ipv6Address { 
-      0xFF, 0xFF, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00,
       0x00, 0x00, 0x00, 0x00,
       0x00, 0x00, 0xFF, 0xFF,
       0x01, 0x02, 0x03, 0x04,
@@ -18,19 +18,21 @@ func TestParseRecord(t *testing.T) {
   }
   parsedValidRecord, validRowError := ParseRecord(validRowItems)
   if nil != validRowError {
-    t.Errorf("Return error \"%s\" for valid row", validRowError)
+    t.Errorf("Return error \"%v\" for valid row", *validRowError)
   }
-  if *validRecord != *parsedValidRecord {
-    t.Errorf("Return invalid value for valid row (expected: %#v, parsed: %#v)", validRecord, parsedValidRecord)
+  if nil == parsedValidRecord {
+    t.Errorf("Return nil for valid row %v", validRowItems)
+  } else if *validRecord != *parsedValidRecord {
+    t.Errorf("Return invalid value for valid row (expected: %v, parsed: %v)", *validRecord, *parsedValidRecord)
   }
 
   var invalidRows = [][]string {
-    { "ffff::ffff:1.2.3.256", "123", "456", "0", "", "", "0.0", "0.0", "0", "0" },
-    { "ffff::ffff:1.2.3.3", "256", "456", "0", "", "", "0.0", "0.0", "0", "0" },
-    { "ffff::ffff:1.2.3.3", "123", "18446744073709551617", "0", "", "", "0.0", "0.0", "0", "0" },
-    { "ffff::ffff:1.2.3.4", "123", "456", "0", "", "", "0.0", "0.0", "1", "0" },
-    { "ffff::ffff:1.2.3.4", "123", "456", "0", "", "", "0.0", "0.0", "0", "1" },
-    { "ffff::ffff:1.2.3.4", "123", "456", "0", "", "", "0.0", "0.0" },
+    { "::ffff:1.2.3.256", "123", "456", "0", "", "", "0.0", "0.0", "0", "0" },
+    { "::ffff:1.2.3.3", "256", "456", "0", "", "", "0.0", "0.0", "0", "0" },
+    { "::ffff:1.2.3.3", "123", "18446744073709551617", "0", "", "", "0.0", "0.0", "0", "0" },
+    { "::ffff:1.2.3.4", "123", "456", "0", "", "", "0.0", "0.0", "1", "0" },
+    { "::ffff:1.2.3.4", "123", "456", "0", "", "", "0.0", "0.0", "0", "1" },
+    { "::ffff:1.2.3.4", "123", "456", "0", "", "", "0.0", "0.0" },
   }
 
   for _, invalidRowItems := range invalidRows {
@@ -88,8 +90,8 @@ func testMatchIpAddresses(t *testing.T, ipAddress string, maskLength byte, valid
 func TestMatchIpAddress(t *testing.T) {
 
   testMatchIpAddresses(t, "::8888", 128, []string { }, []string { "::8887", "::8889" })
-  testMatchIpAddresses(t, "::8888", 124, []string { "::8880", "::888F" },
-    []string { "::887F", "::8890", "::87FF", "::8900" })
-  testMatchIpAddresses(t, "::8888", 120, []string { "::8800", "::88FF" },
-    []string { "::87FF", "::8900", "::7FFF", "::9000" })
+  testMatchIpAddresses(t, "::8888", 124, []string { "::8880", "::888f" },
+    []string { "::887f", "::8890", "::87ff", "::8900" })
+  testMatchIpAddresses(t, "::8888", 120, []string { "::8800", "::88ff" },
+    []string { "::87ff", "::8900", "::7fff", "::9000" })
 }

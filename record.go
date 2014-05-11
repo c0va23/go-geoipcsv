@@ -10,8 +10,12 @@ import (
 const (
   BYTE_SIZE = 8
   MAX_MASK_VALUE = IPV6_BYTES * BYTE_SIZE
+  NETWORK_START_IP_INDEX = 0
+  NETWORK_MASK_LENGTH_INDEX = 1
+  GEONAME_ID_INDEX = 2
   IS_ANONYMOUS_PROXY_INDEX = 8
   IS_SATELLITE_PROVIDER_INDEX = 9
+  TRUE_VALUE = "1"
 )
 
 var (
@@ -22,7 +26,7 @@ var (
 type Record struct {
   ipAddress Ipv6Address
   mask byte
-  geonameId uint64
+  geonameId uint32
 }
 
 func ParseRecord(rowItems []string) (*Record, *error) {
@@ -31,16 +35,18 @@ func ParseRecord(rowItems []string) (*Record, *error) {
     return nil, &lenErr
   }
 
-  if "1" == rowItems[IS_ANONYMOUS_PROXY_INDEX] ||
-      "1" == rowItems[IS_SATELLITE_PROVIDER_INDEX] {
+  if TRUE_VALUE == rowItems[IS_ANONYMOUS_PROXY_INDEX] ||
+      TRUE_VALUE == rowItems[IS_SATELLITE_PROVIDER_INDEX] {
     return nil, &USELESS_RECORS_ERROR
   }
 
-  ipAddress, ipError := ParseIpv6Address(rowItems[0])
+  ipStr := rowItems[NETWORK_START_IP_INDEX]
+  ipAddress, ipError := ParseIpv6Address(ipStr)
   if ipError != nil {
     return nil, ipError
   }
-  mask, maskParseError := strconv.ParseUint(rowItems[1], 10, 8)
+  maskStr := rowItems[NETWORK_MASK_LENGTH_INDEX]
+  mask, maskParseError := strconv.ParseUint(maskStr, 10, 8)
   if nil != maskParseError {
     maskError := fmt.Errorf("Error parsing mask \"%s\"", maskParseError)
     return nil, &maskError
@@ -51,7 +57,8 @@ func ParseRecord(rowItems []string) (*Record, *error) {
     return nil, &maskError
   }
 
-  geonameId, geonameIdParseError := strconv.ParseUint(rowItems[2], 10, 64)
+  geonameIdStr := rowItems[GEONAME_ID_INDEX]
+  geonameId, geonameIdParseError := strconv.ParseUint(geonameIdStr, 10, 32)
   if nil != geonameIdParseError {
     geonameIdError := fmt.Errorf("Error parsing geoname_id \"%s\"", geonameIdParseError)
     return nil, &geonameIdError
@@ -60,7 +67,7 @@ func ParseRecord(rowItems []string) (*Record, *error) {
   record := &Record {
     ipAddress: *ipAddress,
     mask: byte(mask),
-    geonameId: geonameId,
+    geonameId: uint32(geonameId),
   }
   return record, nil
 }

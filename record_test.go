@@ -95,3 +95,11 @@ func TestMatchIpAddress(t *testing.T) {
   testMatchIpAddresses(t, "::8888", 120, []string { "::8800", "::88ff" },
     []string { "::87ff", "::8900", "::7fff", "::9000" })
 }
+
+func TestGeonameId(t *testing.T) {
+  geonameId := uint32(123456)
+  record := Record { geonameId: geonameId }
+  if record.GeonameId() != geonameId {
+    t.Error("GeonameId() return invalid value")
+  }
+}

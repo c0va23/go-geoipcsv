@@ -84,3 +84,7 @@ func (record *Record) MatchIpAddress(ipAddress *Ipv6Address) bool {
   var bitMask byte = 0xFF << (BYTE_SIZE - bitOffset)
   return (record.ipAddress[equalByteCount] & bitMask) == (ipAddress[equalByteCount] & bitMask)
 }
+
+func (record *Record) GeonameId() uint32 {
+  return record.geonameId
+}

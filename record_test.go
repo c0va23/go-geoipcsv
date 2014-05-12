@@ -1,4 +1,4 @@
-package geoip
+package geoipcsv
 
 import (
   "testing"

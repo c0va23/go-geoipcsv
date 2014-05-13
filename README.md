@@ -1,5 +1,6 @@
 # geoipcsv
 Golang library for parsing and searching by csv-database MaxMind GeoIP (http://dev.maxmind.com/geoip/geoip2/geolite2/). 
+
 Database fully loaded into memory.
 Search perform via binary searching.
 
